@@ -1,17 +1,15 @@
 import React from 'react';
 import Layout from '../components/template/Layout';
-import Grafico from '../components/template/Grafico';
+import Grafico from '../components/template/Grafico'; // Importe o componente Grafico
 import { Calendar } from '@/components/ui/calendar';
 
 const Home = () => {
-
   return (
     <Layout titulo="Página Inicial" subtitulo="Estamos construindo">
-      <h3>Conteúdo</h3>
-        <div>
-          <Grafico />
-        </div>
-        
+      <div className=''><p>Numero de alunos que fizeram o Miniteste</p></div>
+      <div className=''>
+        <Grafico />
+      </div>
     </Layout>
   );
 };

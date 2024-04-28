@@ -77,19 +77,23 @@ const TurmaCard = ({ cursoKey, turmaKey, turma, id_discord }) => {
     }, [cursoKey, id_discord]);
 
     return (
-        <Card style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '5px', textAlign: 'center', fontSize: '18px', flexDirection: 'column', minWidth: '300px', flex: '1', marginRight: '10px' }}>
+        <Card className="bg-white dark:bg-stone-950 border border-gray-400 p-4 mb-3 text-center text-lg flex flex-col min-w-[300px] flex-1 mr-10">
             <CardHeader>
                 <CardTitle><strong>{cursoKey}</strong></CardTitle>
-                <CardDescription>ID: {turma.id_docente}</CardDescription>
+                <CardDescription className="p-1">ID: {turma.id_docente}</CardDescription>
                 <CardDescription>FB: {turmaKey}</CardDescription>
             </CardHeader>
-            <CardContent>
-                <p style={{ marginBottom: '5px' }}><strong>Período:</strong> {turma.periodo}</p>
-                <p style={{ marginBottom: '5px' }}><strong>Alunos:</strong> {numeroAlunos}</p>
+            <CardContent className="flex flex-col items-center">
+                <p className="mb-3"><strong>Período:</strong> {turma.periodo}</p>
+                <p className="mb-3"><strong>Alunos:</strong> {numeroAlunos}</p>
+                <div className="flex items-center">
+                    <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                    <span className="text-green-500">Online</span>
+                </div>
             </CardContent>
-            <CardFooter style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Link href={`/presencas-ver/${cursoKey}`} passHref>
-                    <Button variant="outline" className={`bg-blue-600 hover:bg-blue-400 border`}>Ver Presença</Button>
+            <CardFooter className="flex flex-col items-center">
+                <Link href={`/presencas-ver/${cursoKey}`} passHref>
+                    <Button variant="outline" className="bg-blue-600 hover:bg-blue-400 border">Ver Presença</Button>
                 </Link>
             </CardFooter>
         </Card>

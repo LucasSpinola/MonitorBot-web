@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import api from '../../services/api';
 import Layout from '../../components/template/Layout';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
@@ -8,6 +8,7 @@ const PerguntaDetalhes = () => {
   const router = useRouter();
   const [perguntas, setPerguntas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const tableRef = useRef(null); // Ref para a tabela
 
   useEffect(() => {
     const fetchPerguntas = async () => {
@@ -24,6 +25,20 @@ const PerguntaDetalhes = () => {
     fetchPerguntas();
   }, []);
 
+  useEffect(() => {
+    // Verifica se a tabela e o ref estão definidos antes de tentar acessá-los
+    if (tableRef.current) {
+      const tableHeight = tableRef.current.clientHeight;
+      const windowHeight = window.innerHeight;
+      
+      // Adiciona scroll à tabela se ela ultrapassar a altura da janela
+      if (tableHeight > windowHeight) {
+        tableRef.current.style.overflowY = 'scroll';
+        tableRef.current.style.maxHeight = `${windowHeight - 200}px`; // Ajuste de margem para o scroll não cobrir outros elementos
+      }
+    }
+  }, [perguntas]);
+
   if (loading) {
     return <Layout><p>Carregando...</p></Layout>;
   }
@@ -33,7 +48,7 @@ const PerguntaDetalhes = () => {
   }
 
   return (
-      <div className="overflow-x-auto flex flex-grow-0 h-screen">
+      <div ref={tableRef} style={{ overflowY: 'auto' }}>
         <Table className="max-w-full">
           <TableHeader>
             <TableRow>

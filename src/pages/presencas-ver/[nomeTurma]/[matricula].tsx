@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import api from '../../../services/api';
 import Layout from '../../../components/template/Layout';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
@@ -11,6 +11,7 @@ const PresencaVisualizar = () => {
   const [presencas, setPresencas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const tableRef = useRef(null); // Ref para a tabela
 
   useEffect(() => {
     const fetchPresencas = async () => {
@@ -25,14 +26,14 @@ const PresencaVisualizar = () => {
 
         if (presencasData && Object.keys(presencasData).length > 0) {
           setPresencas(presencasData);
-          setError(null); 
+          setError(null);
         } else {
           throw new Error('Dados de presença não disponíveis');
         }
       } catch (error) {
         setError('Dados de presença não disponíveis');
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
@@ -41,40 +42,54 @@ const PresencaVisualizar = () => {
     }
   }, [nomeTurma, matricula]);
 
-  if (error) {
-    return <Layout><p>{error}</p></Layout>;
-  }
+  useEffect(() => {
+    // Verifica se a tabela e o ref estão definidos antes de tentar acessá-los
+    if (tableRef.current) {
+      const tableHeight = tableRef.current.clientHeight;
+      const windowHeight = window.innerHeight;
 
-  if (!presencas || Object.keys(presencas).length === 0) {
-    return <Layout><p className={`flex items-center justify-center`}>Dados de presença não disponíveis.</p></Layout>;
-  }
+      // Adiciona scroll à tabela se ela ultrapassar a altura da janela
+      if (tableHeight > windowHeight) {
+        tableRef.current.style.overflowY = 'scroll';
+        tableRef.current.style.maxHeight = `${windowHeight - 200}px`; // Ajuste de margem para o scroll não cobrir outros elementos
+      }
+    }
+  }, [presencas]);
+
+  const handleVerDetalhes = () => {
+    // Implemente a lógica para visualizar os detalhes da presença
+  };
 
   return (
     <Layout titulo={`Detalhes de Presença para a Matrícula ${matricula}`} subtitulo={`Turma: ${nomeTurma}`}>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableCell>Data</TableCell>
-            <TableCell>Teoria</TableCell>
-            <TableCell>Laboratório</TableCell>
-            <TableCell>Ações</TableCell>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Object.entries(presencas).map(([data, frequencia]) => (
-            <TableRow key={data}>
-              <TableCell>{data}</TableCell>
-              <TableCell>{frequencia.includes('PT') ? 'P' : 'F'}</TableCell>
-              <TableCell>{frequencia.includes('PL') ? 'P' : 'F'}</TableCell>
-              <TableCell className=''>
-                  <Button onClick={() => handleVerDetalhes()} className={` bg-red-600 border hover:bg-red-400 `}>Excluir</Button>
-                  <Button onClick={() => handleVerDetalhes()} className={` bg-yellow-600 border hover:bg-yellow-400 `}>Editar</Button>
-                </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-
-      </Table>
+      {error && <Layout><p>{error}</p></Layout>}
+      {!error && (
+        <div ref={tableRef} style={{ overflowY: 'auto' }}>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableCell>Data</TableCell>
+                <TableCell>Teoria</TableCell>
+                <TableCell>Laboratório</TableCell>
+                <TableCell>Ações</TableCell>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Object.entries(presencas).map(([data, frequencia]) => (
+                <TableRow key={data}>
+                  <TableCell>{data}</TableCell>
+                  <TableCell>{frequencia.includes('PT') ? 'P' : 'F'}</TableCell>
+                  <TableCell>{frequencia.includes('PL') ? 'P' : 'F'}</TableCell>
+                  <TableCell className=''>
+                    <Button onClick={() => handleVerDetalhes()} className={` bg-red-600 border hover:bg-red-400 `}>Excluir</Button>
+                    <Button onClick={() => handleVerDetalhes()} className={` bg-yellow-600 border hover:bg-yellow-400 `}>Editar</Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </Layout>
   );
 };

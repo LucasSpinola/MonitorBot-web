@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import api from '../../services/api';
 import Layout from '../../components/template/Layout';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
@@ -11,6 +11,7 @@ const PresencaDetalhes = () => {
   const [presencas, setPresencas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [detalhesPresenca, setDetalhesPresenca] = useState(null);
+  const tableRef = useRef(null); // Ref para a tabela
 
   useEffect(() => {
     const fetchPresencas = async () => {
@@ -28,6 +29,20 @@ const PresencaDetalhes = () => {
       fetchPresencas();
     }
   }, [nomeTurma]);
+
+  useEffect(() => {
+    // Verifica se a tabela e o ref estão definidos antes de tentar acessá-los
+    if (tableRef.current) {
+      const tableHeight = tableRef.current.clientHeight;
+      const windowHeight = window.innerHeight;
+      
+      // Adiciona scroll à tabela se ela ultrapassar a altura da janela
+      if (tableHeight > windowHeight) {
+        tableRef.current.style.overflowY = 'scroll';
+        tableRef.current.style.maxHeight = `${windowHeight - 200}px`; // Ajuste de margem para o scroll não cobrir outros elementos
+      }
+    }
+  }, [presencas]);
 
   if (loading) {
     return <Layout><p>Carregando...</p></Layout>;
@@ -60,31 +75,33 @@ const PresencaDetalhes = () => {
 
   return (
     <Layout titulo="Detalhes da Presença" subtitulo="Informações detalhadas de presença" voltar="/turmas">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableCell>Matrícula</TableCell>
-            <TableCell>Total Teoria</TableCell>
-            <TableCell>Total Laboratório</TableCell>
-            <TableCell>Ações</TableCell>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Object.keys(totaisPorMatricula).map((matricula) => {
-            const { totalTeoria, totalLaboratorio } = totaisPorMatricula[matricula];
-            return (
-              <TableRow key={matricula}>
-                <TableCell>{matricula}</TableCell>
-                <TableCell>{totalTeoria}</TableCell>
-                <TableCell>{totalLaboratorio}</TableCell>
-                <TableCell>
-                  <Button onClick={() => handleVerDetalhes(matricula)} className={` bg-blue-800 border hover:bg-blue-500 `}>Ver Detalhes</Button>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+      <div ref={tableRef} style={{ overflowY: 'auto' }}>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableCell>Matrícula</TableCell>
+              <TableCell>Total Teoria</TableCell>
+              <TableCell>Total Laboratório</TableCell>
+              <TableCell>Ações</TableCell>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {Object.keys(totaisPorMatricula).map((matricula) => {
+              const { totalTeoria, totalLaboratorio } = totaisPorMatricula[matricula];
+              return (
+                <TableRow key={matricula}>
+                  <TableCell>{matricula}</TableCell>
+                  <TableCell>{totalTeoria}</TableCell>
+                  <TableCell>{totalLaboratorio}</TableCell>
+                  <TableCell>
+                    <Button onClick={() => handleVerDetalhes(matricula)} className={` bg-blue-800 border hover:bg-blue-500 `}>Ver Detalhes</Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
     </Layout>
   );
 };

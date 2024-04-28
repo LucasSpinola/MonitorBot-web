@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
+import * as d3 from 'd3'; // Importe todas as funções do D3.js
 import api from '../../services/api';
 import Cookies from 'js-cookie';
-import Chart from 'chart.js/auto';
 import AppContext from '../../data/context/AppContext'; // Importe o contexto do tema
 
 const Grafico = () => {
@@ -53,77 +53,92 @@ const Grafico = () => {
         getTurmasData();
     }, []);
 
+    // UseRef para a div que conterá o gráfico
     const chartRef = useRef(null);
-    const chartInstance = useRef(null);
 
     useEffect(() => {
-        const createOrUpdateChart = () => {
-            if (chartInstance.current) {
-                chartInstance.current.destroy();
-            }
+        if (turmas.length > 0) {
+            // Remove qualquer gráfico anterior
+            d3.select(chartRef.current).select('svg').remove();
 
-            if (chartRef && chartRef.current) {
-                const ctx = chartRef.current.getContext('2d');
+            // Configuração do gráfico
+            const margin = { top: 30, right: 30, bottom: 70, left: 60 };
+            const width = 600 - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
 
-                chartInstance.current = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: turmas.map(turma => turma.turmaNome),
-                        datasets: [{
-                            label: 'Alunos Miniteste',
-                            data: turmas.map(turma => turma.numeroAlunosMiniteste),
-                            backgroundColor: 'rgba(0, 123, 255, 0.5)',
-                            borderColor: 'rgba(0, 123, 255, 1)',
-                            borderWidth: 1,
-                        }],
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                            },
-                        },
-                        plugins: {
-                            legend: {
-                                display: true,
-                                labels: {
-                                    color: tema === 'dark' ? 'white' : 'black', // Use a cor do texto de acordo com o tema
-                                    font: {
-                                        size: 12, // Tamanho da fonte da legenda
-                                        weight: 'bold', // Peso da fonte da legenda
-                                    },
-                                    generateLabels: chart => {
-                                        const data = chart.data.datasets[0].data;
-                                        const labels = chart.data.labels;
-                                        const result = [];
-                                    
-                                        for (let i = 0; i < data.length; i++) {
-                                            const label = `${labels[i]} (Total: ${turmas[i].numeroAlunosTotal})`;
-                                            const textColor = labels[i].startsWith('Turma') ? 'white' : (tema === 'dark' ? 'white' : 'black');
-                                            result.push({
-                                                text: label,
-                                                font: { color: textColor }
-                                            });
-                                        }
-                                    
-                                        return result;
-                                    },
-                                },
-                            },
-                        },
-                    },
+            const svg = d3.select(chartRef.current)
+                .append('svg')
+                .attr('width', width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleBand()
+                .domain(turmas.map(d => d.turmaNome))
+                .range([0, width])
+                .padding(0.1);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(turmas, d => d.numeroAlunosMiniteste)])
+                .nice()
+                .range([height, 0]);
+
+            svg.append('g')
+                .attr('transform', `translate(0,${height})`)
+                .call(d3.axisBottom(x))
+                .selectAll('text')
+                .style('text-anchor', 'end')
+                .attr('dx', '-0.8em')
+                .attr('dy', '-0.5em')
+                .attr('transform', 'rotate(-45)'); // Adiciona rotação para melhorar visibilidade
+
+            svg.append('g')
+                .call(d3.axisLeft(y));
+
+            const line = d3.line()
+                .x(d => x(d.turmaNome) + x.bandwidth() / 2)
+                .y(d => y(d.numeroAlunosMiniteste));
+
+            svg.append('path')
+                .datum(turmas)
+                .attr('fill', 'none')
+                .attr('stroke', tema === 'dark' ? '#009688' : '#2196F3') // Cor da linha de acordo com o tema
+                .attr('stroke-width', 2)
+                .attr('d', line);
+
+            // Adiciona pontos aos gráficos
+            svg.selectAll('.ponto')
+                .data(turmas)
+                .enter()
+                .append('circle')
+                .attr('class', 'ponto')
+                .attr('cx', d => x(d.turmaNome) + x.bandwidth() / 2)
+                .attr('cy', d => y(d.numeroAlunosMiniteste))
+                .attr('r', 4)
+                .attr('fill', tema === 'dark' ? '#009688' : '#2196F3') // Cor do ponto de acordo com o tema
+                .on('mouseover', (event, d) => {
+                    const tooltip = d3.select(chartRef.current).append('div')
+                        .attr('class', 'tooltip')
+                        .style('position', 'absolute')
+                        .style('background-color', 'rgba(0, 0, 0, 0.7)')
+                        .style('color', 'white')
+                        .style('padding', '8px')
+                        .style('border-radius', '4px')
+                        .style('pointer-events', 'none')
+                        .style('font-size', '12px')
+                        .html(`Turma: ${d.turmaNome}<br>Total de alunos: ${d.numeroAlunosTotal}`);
+
+                    tooltip.style('left', `${event.pageX}px`)
+                        .style('top', `${event.pageY}px`);
+                })
+                .on('mouseleave', () => {
+                    d3.selectAll('.tooltip').remove();
                 });
-            }
-        };
-
-        createOrUpdateChart();
+        }
     }, [turmas, tema]);
 
     return (
-        <div>
-            <canvas ref={chartRef} style={{ maxWidth: '30%', maxHeight: '200px' }} />
-        </div>
+        <div ref={chartRef} style={{ maxWidth: '100%', maxHeight: '600px', margin: '0 auto' }} />
     );
 };
 

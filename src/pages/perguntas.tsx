@@ -5,7 +5,7 @@ export default function Perguntas() {
   return (
     <div className={``}>
       <Layout titulo="Veja suas perguntas" subtitulo="Estamos contruindo">
-        <div className="h-grow"><PerguntaDetalhes /></div>
+        <PerguntaDetalhes />
       </Layout>
       </div>
   );

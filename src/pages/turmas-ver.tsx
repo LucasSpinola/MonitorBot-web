@@ -1,5 +1,5 @@
 import Layout from "../components/template/Layout";
-import TurmaDetalhes from "../components/template/TurmaDetalhe";
+import TurmaDetalhes from "./turmas-ver/[nomeTurma]";
 
 export default function TurmaVer() {
   return (
