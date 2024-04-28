@@ -1,8 +1,11 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import api from '../../services/api';
 import Layout from '../../components/template/Layout';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { useRouter } from 'next/router';
+import EditarAlunoDialog from '../../components/template/EditarAlunoDialog';
+import ExcluirAlunoDialog from '../../components/template/ExcluirAlunoDialog';
+import CriarAlunoDialog from '../../components/template/CriarAlunoDialog';
 
 const TurmaDetalhes = () => {
   const router = useRouter();
@@ -10,6 +13,7 @@ const TurmaDetalhes = () => {
   const [turma, setTurma] = useState(null);
   const [alunos, setAlunos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [matriculaToDelete, setMatriculaToDelete] = useState(null);
 
   useEffect(() => {
     const fetchTurma = async () => {
@@ -29,13 +33,43 @@ const TurmaDetalhes = () => {
     }
   }, [nomeTurma]);
 
-  if (loading) {
-    return <Layout><p>Carregando...</p></Layout>;
-  }
+  const handleEditAluno = async (editedData) => {
+    try {
+      await api.put(`/alunos/edita_aluno/${editedData.matricula}`, editedData);
+      const updatedAlunos = alunos.map((aluno) => {
+        if (aluno.matricula === editedData.matricula) {
+          return editedData;
+        }
+        return aluno;
+      });
+      setAlunos(updatedAlunos);
+      console.log('Dados editados do aluno:', editedData);
+    } catch (error) {
+      console.error('Erro ao editar aluno:', error);
+    }
+  };
 
-  if (!turma) {
-    return <Layout><p>Não foi possível carregar os dados da turma.</p></Layout>;
-  }
+  const handleDeleteConfirmation = async (matricula) => {
+    try {
+      await api.delete(`/alunos/deleta_aluno/${matricula}`);
+      const updatedAlunos = alunos.filter((aluno) => aluno.matricula !== matricula);
+      setAlunos(updatedAlunos);
+      setMatriculaToDelete(null);
+    } catch (error) {
+      console.error('Erro ao excluir aluno:', error);
+    }
+  };
+
+  const handleCreateAluno = async (newAlunoData) => {
+    try {
+      const response = await api.post(`/alunos/cria_aluno/`, newAlunoData);
+      const createdAluno = response.data;
+      console.log('Aluno criado:', createdAluno);
+      setAlunos([...alunos, createdAluno]);
+    } catch (error) {
+      console.error('Erro ao criar aluno:', error);
+    }
+  };
 
   return (
     <Layout titulo="Detalhes da Turma" subtitulo="Informações detalhadas da turma" voltar="/turmas">
@@ -48,6 +82,7 @@ const TurmaDetalhes = () => {
               <TableCell>Nome</TableCell>
               <TableCell>Sub Turma</TableCell>
               <TableCell>Turma</TableCell>
+              <TableCell>Ações</TableCell>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -58,11 +93,23 @@ const TurmaDetalhes = () => {
                 <TableCell>{aluno.nome}</TableCell>
                 <TableCell>{aluno.sub_turma}</TableCell>
                 <TableCell>{aluno.turma}</TableCell>
+                <TableCell className="flex items-center">
+                  <ExcluirAlunoDialog
+                    matricula={aluno.matricula}
+                    onConfirmDelete={handleDeleteConfirmation}
+                    onClose={() => setMatriculaToDelete(null)}
+                  />
+                  <span className="inline-block w-1"></span>
+                  <EditarAlunoDialog aluno={aluno} onConfirmEdit={handleEditAluno} />
+                  <span className="inline-block w-1"></span>
+                  <CriarAlunoDialog onConfirmCreate={handleCreateAluno} />
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
+      
       <style jsx>{`
         .table-container {
           overflow-y: auto;

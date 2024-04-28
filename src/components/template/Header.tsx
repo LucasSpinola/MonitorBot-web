@@ -1,7 +1,7 @@
 import BotaoAlternarTema from "./BotaoAlternarTema";
 import Title from "./Title";
 import useAppData from "../../data/hook/useAppData";
-import AvatarUsuario from "../template/AvatarUsuario";
+import AvatarUsuario from "./AvatarUsuario";
 import Cookies from 'js-cookie';
 import useAuth from "../../data/hook/useAuth";
 

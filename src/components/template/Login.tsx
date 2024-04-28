@@ -21,19 +21,19 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     if (email.trim() === '' || senha.trim() === '') {
-      toast.error('Por favor, preencha todos os campos.', { position: "top-right" });
+      toast.error('Por favor, preencha todos os campos.', { position: "top-center" });
       return;
     }
     try {
       await login(email, senha);
     } catch (error) {
-      toast.error('Erro ao fazer login. Por favor, tente novamente.', { position: "top-right" });
+      toast.error('Erro ao fazer login. Por favor, tente novamente.', { position: "top-center" });
     }
   };
 
   return (
     <div className="flex items-center justify-center h-screen">
-      <Card className="w-[350px] border border-gray-400 rounded-lg">
+      <Card className="w-[400px] border border-gray-400 rounded-lg">
         <CardContent>
           <div className="flex justify-center items-center mb-4">
             <Image src={Logo} alt="Logo" height={200} width={160} />
@@ -41,16 +41,16 @@ export default function Login() {
           <form onSubmit={handleLogin}>
             <div className="grid gap-4">
               <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="email">Email:</Label>
+                <Label htmlFor="email"><strong>Email:</strong></Label>
                 <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="user@example.com" />
               </div>
               <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="password">Senha:</Label>
+                <Label htmlFor="password"><strong>Senha:</strong></Label>
                 <Input id="password" type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="********" />
               </div>
             </div>
             <div className="mt-4">
-              <Button variant="outline" className="w-full bg-blue-600 hover:bg-blue-400" type="submit">Entrar</Button>
+              <Button variant="outline" className="w-full bg-blue-600 hover:bg-blue-400" type="submit"><strong>Entrar</strong></Button>
             </div>
           </form>
         </CardContent>

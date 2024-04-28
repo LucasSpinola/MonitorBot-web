@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import Cookies from 'js-cookie';
 import { useState } from 'react';
-import AvatarUsuario from "../template/AvatarUsuario";
+import AvatarUsuario from "./AvatarUsuario";
 
 export default function InfoPerfil() {
     const [editing, setEditing] = useState(false);
