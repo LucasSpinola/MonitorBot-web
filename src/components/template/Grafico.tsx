@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
-import * as d3 from 'd3'; // Importe todas as funções do D3.js
+import * as d3 from 'd3';
 import api from '../../services/api';
 import Cookies from 'js-cookie';
-import AppContext from '../../data/context/AppContext'; // Importe o contexto do tema
+import AppContext from '../../data/context/AppContext';
 
 const Grafico = () => {
-    const { tema } = useContext(AppContext); // Use o contexto do tema
+    const { tema } = useContext(AppContext);
     const [turmas, setTurmas] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -48,20 +49,19 @@ const Grafico = () => {
         const getTurmasData = async () => {
             const turmasData = await fetchData();
             setTurmas(turmasData);
+            setLoading(false);
         };
 
         getTurmasData();
     }, []);
 
-    // UseRef para a div que conterá o gráfico
     const chartRef = useRef(null);
 
     useEffect(() => {
         if (turmas.length > 0) {
-            // Remove qualquer gráfico anterior
+            
             d3.select(chartRef.current).select('svg').remove();
 
-            // Configuração do gráfico
             const margin = { top: 30, right: 30, bottom: 70, left: 60 };
             const width = 600 - margin.left - margin.right;
             const height = 400 - margin.top - margin.bottom;
@@ -90,7 +90,7 @@ const Grafico = () => {
                 .style('text-anchor', 'end')
                 .attr('dx', '-0.8em')
                 .attr('dy', '-0.5em')
-                .attr('transform', 'rotate(-45)'); // Adiciona rotação para melhorar visibilidade
+                .attr('transform', 'rotate(-45)');
 
             svg.append('g')
                 .call(d3.axisLeft(y));
@@ -102,11 +102,10 @@ const Grafico = () => {
             svg.append('path')
                 .datum(turmas)
                 .attr('fill', 'none')
-                .attr('stroke', tema === 'dark' ? '#009688' : '#2196F3') // Cor da linha de acordo com o tema
+                .attr('stroke', tema === 'dark' ? '#009688' : '#2196F3')
                 .attr('stroke-width', 2)
                 .attr('d', line);
 
-            // Adiciona pontos aos gráficos
             svg.selectAll('.ponto')
                 .data(turmas)
                 .enter()
@@ -115,7 +114,7 @@ const Grafico = () => {
                 .attr('cx', d => x(d.turmaNome) + x.bandwidth() / 2)
                 .attr('cy', d => y(d.numeroAlunosMiniteste))
                 .attr('r', 4)
-                .attr('fill', tema === 'dark' ? '#009688' : '#2196F3') // Cor do ponto de acordo com o tema
+                .attr('fill', tema === 'dark' ? '#009688' : '#2196F3') 
                 .on('mouseover', (event, d) => {
                     const tooltip = d3.select(chartRef.current).append('div')
                         .attr('class', 'tooltip')
@@ -138,7 +137,10 @@ const Grafico = () => {
     }, [turmas, tema]);
 
     return (
-        <div ref={chartRef} style={{ maxWidth: '100%', maxHeight: '600px', margin: '0 auto' }} />
+        <div style={{ maxWidth: '100%', maxHeight: '600px', margin: '0 auto', position: 'relative' }}>
+            {loading && <div className="loading-indicator">Carregando...</div>}
+            <div ref={chartRef} style={{ maxWidth: '100%', maxHeight: '600px' }} />
+        </div>
     );
 };
 

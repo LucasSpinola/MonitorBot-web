@@ -1,4 +1,3 @@
-import Layout from "../components/template/Layout";
 import Login from "../components/template/Login";
 
 export default function Autentification() {

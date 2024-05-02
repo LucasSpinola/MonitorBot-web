@@ -9,6 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import IConeExcluir  from '../icons/excluir';
 
 const ExcluirAlunoDialog = ({ matricula, onConfirmDelete, onClose }) => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
@@ -17,11 +18,18 @@ const ExcluirAlunoDialog = ({ matricula, onConfirmDelete, onClose }) => {
     onConfirmDelete(matricula);
     setIsConfirmationOpen(false);
   };
+  
+  const handleCancelDelete = () => {
+    setIsConfirmationOpen(false);
+    onClose();
+  };
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className='bg-red-600 hover:bg-red-400' variant="destructive"  onClick={() => setIsConfirmationOpen(true)}>Excluir</Button>
+      <Button className='bg-red-600 hover:bg-red-400' variant="destructive" onClick={() => setIsConfirmationOpen(true)}>
+          <IConeExcluir width={6} height={5} marginRight="0.2rem" /> Excluir
+        </Button>
       </DialogTrigger>
       {isConfirmationOpen && (
         <DialogContent  className='bg-gray-300 border border-black rounded-lg'>
@@ -31,7 +39,7 @@ const ExcluirAlunoDialog = ({ matricula, onConfirmDelete, onClose }) => {
           </DialogHeader>
           <DialogFooter>
             <Button className='bg-blue-600 hover:bg-blue-400' onClick={handleConfirmDelete} variant={'outline'}><strong>Confirmar</strong></Button>
-        <Button className='bg-red-600 hover:bg-red-400' onClick={onClose} variant={'outline'}><strong>Cancelar</strong></Button>
+        <Button className='bg-red-600 hover:bg-red-400' onClick={handleCancelDelete} variant={'outline'}><strong>Cancelar</strong></Button>
           </DialogFooter>
         </DialogContent>
       )}

@@ -73,6 +73,7 @@ const TurmaDetalhes = () => {
 
   return (
     <Layout titulo="Detalhes da Turma" subtitulo="Informações detalhadas da turma" voltar="/turmas">
+      <div className='flex items-end justify-end px-20'><CriarAlunoDialog onConfirmCreate={handleCreateAluno} /></div>
       <div className="table-container">
         <Table>
           <TableHeader>
@@ -83,6 +84,7 @@ const TurmaDetalhes = () => {
               <TableCell>Sub Turma</TableCell>
               <TableCell>Turma</TableCell>
               <TableCell>Ações</TableCell>
+              
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -102,7 +104,7 @@ const TurmaDetalhes = () => {
                   <span className="inline-block w-1"></span>
                   <EditarAlunoDialog aluno={aluno} onConfirmEdit={handleEditAluno} />
                   <span className="inline-block w-1"></span>
-                  <CriarAlunoDialog onConfirmCreate={handleCreateAluno} />
+                  
                 </TableCell>
               </TableRow>
             ))}

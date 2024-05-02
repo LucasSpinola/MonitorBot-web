@@ -1,5 +1,5 @@
 import Layout from "../components/template/Layout";
-import PerguntaDetalhes from "./pergunta/[nomeTurma]";
+import PerguntaDetalhes from "../components/template/Pergunta";
 
 export default function Perguntas() {
   return (

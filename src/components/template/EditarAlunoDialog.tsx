@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import IconeEdita from '../icons/editar';
 
 const EditarAlunoDialog = ({ aluno, onConfirmEdit }) => {
   const [editedData, setEditedData] = useState({
@@ -24,7 +25,14 @@ const EditarAlunoDialog = ({ aluno, onConfirmEdit }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className={`bg-yellow-700 hover:bg-yellow-500`}>Editar</Button>
+      <div className="flex items-center justify-center">
+          <Button className={`bg-yellow-600 hover:bg-yellow-300`}>
+            <span className="flex justify-center">
+              <IconeEdita width={6} height={5} marginRight="0.1rem" />
+            </span>
+            Editar
+          </Button>
+        </div>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] bg-gray-300">
         <DialogHeader>
